@@ -1,11 +1,18 @@
-const {app, BrowserWindow} = require('electron')
+
+const {app, BrowserWindow, ipcMain} = require('electron')
 
 let mainWindow
 
 function createWindow() {
+  const path = require("path");
   mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      preload: path.join(__dirname,'preload.js')
+    }
   })
 
   mainWindow.loadFile(`dist/electron12App/index.html`).then(() => console.info(`loaded application`));
@@ -17,6 +24,9 @@ function createWindow() {
   })
 }
 
+ipcMain.handle('invoke-test', async (event, ...args) => {
+  console.log(`handle method ${args}`);
+})
 app.on('ready', createWindow)
 
 app.on('window-all-closed', function () {
@@ -25,4 +35,6 @@ app.on('window-all-closed', function () {
 
 app.on('activate', function () {
   if (mainWindow === null) createWindow()
+
+
 })
